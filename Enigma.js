@@ -1,4 +1,4 @@
-class Enigma{
+export class Enigma{
     constructor(kb, pb, r1, r2, r3, rf){
         this.kb = kb;
         this.pb = pb;
