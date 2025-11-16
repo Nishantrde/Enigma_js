@@ -1,4 +1,4 @@
-class Rotor{
+export class Rotor{
     constructor(wiring, notch){
         this.left = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         this.right = wiring

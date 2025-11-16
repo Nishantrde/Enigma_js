@@ -1,4 +1,4 @@
-class Plugboard{
+export class Plugboard{
     constructor(pairs){
         this.left  = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         this.right = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -23,3 +23,6 @@ class Plugboard{
     }
 
 }
+
+
+

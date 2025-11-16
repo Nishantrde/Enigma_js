@@ -1,4 +1,4 @@
-class Keyboard{
+export class Keyboard{
     forward(signal){
         return "ABCDEFGHIJKLMNOPQRSTUVWXYZ".indexOf(signal); 
     }

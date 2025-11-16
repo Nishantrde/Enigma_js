@@ -1,4 +1,4 @@
-class Reflector{
+export class Reflector{
     constructor(wiring){
         this.left = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         this.right = wiring
