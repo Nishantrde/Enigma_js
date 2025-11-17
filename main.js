@@ -17,11 +17,11 @@ const C = new Reflector("FVPJIAOYEDRZXWGCTKUQSBNMHL")
 const KB = new Keyboard()
 const PB = new Plugboard(["AR", "GK", "OX"])
 
-const ENIGMA = new Enigma(KB,PB,I,II,III,A)
+const ENIGMA = new Enigma(KB,PB,[I,II,III],A)
 
 let op = ""
 ENIGMA.set_key("DOG")
-for (let msg of "WNFA"){
+for (let msg of "JWFJ"){
     op = op + ENIGMA.encrypt(msg)
 }
 
