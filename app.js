@@ -1,4 +1,8 @@
-const { Keyboard } = require('./Main_Machine/Keyboard.js'); // <- named import of the class
+const { Keyboard } = require('./Main_Machine/Keyboard.js');
+const { Plugboard } = require('./Main_Machine/Plugboard.js');
+const { Rotor } = require('./Main_Machine/Rotor.js');
+const { Reflector } = require('./Main_Machine/Reflector.js');
+
 const express = require('express');
 const path = require('path');
 const app = express();
