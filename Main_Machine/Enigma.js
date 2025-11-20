@@ -13,10 +13,13 @@ export class Enigma{
         }
     }
     encrypt(message){
+        for (let rotor in this.rotors){
+        }
+        
         let enc_message = '';
         for (let char of message){
-        for (let i = 0; i < this.rotors.length; i++){
-            for (let j = this.rotors.length - 1; j >= 0; j--){
+        for (let i = 1; i < this.rotors.length; i++){
+            for (let j = this.rotors.length - i; j >= 0; j--){
                 if (this.rotors[j].left[0] === this.rotors[j].notch){
                     this.rotors[j-1].rotate()
                 }

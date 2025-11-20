@@ -21,7 +21,8 @@ const ENIGMA = new Enigma(KB,PB,[I,II,III],A)
 
 let op = ""
 ENIGMA.set_key("DOG")
-let msg  = "JATA"
+let msg  = "ABCEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ"
+// let msg = "TEST"
 op = ENIGMA.encrypt(msg)
 
 

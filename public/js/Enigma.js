@@ -14,19 +14,16 @@ export class Enigma{
     }
     encrypt(letter){
 
-        for (let i = 0; i < this.rotors.length; i++){
-            for (let j = this.rotors.length - 1; j >= 0; j--){
+        for (let i = 1; i < this.rotors.length; i++){
+            for (let j = this.rotors.length - i; j >= 0; j--){
                 if (this.rotors[j].left[0] === this.rotors[j].notch){
                     this.rotors[j-1].rotate()
                 }
             }
         }
 
-        console.log("Encrypting letter:", letter);
         let signal = this.kb.forward(letter);
-        console.log("After keyboard:", signal);
         signal = this.pb.forward(signal);
-        console.log("After keyboard:", signal);
         
         for (let i = this.rotors.length - 1; i >= 0; i--){
             signal = this.rotors[i].forward(signal);
@@ -38,7 +35,8 @@ export class Enigma{
         
         signal = this.pb.backward(signal);
         letter = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[signal];
-        return letter;
+        this.rotors[this.rotors.length - 1].rotate();
+        return letter;        
     }
 }
 

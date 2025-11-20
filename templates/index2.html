@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Enigma — UI Prototype</title>
+
+  <!-- Nunito font -->
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;700;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#0b1020;
+      --panel:#0e1626;
+      --accent:#d8b35a;
+      --muted:#94a3b8;
+      --glass: rgba(255,255,255,0.03);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:'Nunito',system-ui,Arial;color:#e6eef8;background:linear-gradient(180deg,var(--bg) 0%, #07101a 100%);-webkit-font-smoothing:antialiased}
+
+    .wrap{max-width:1100px;margin:32px auto;padding:28px;border-radius:14px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));box-shadow:0 10px 30px rgba(2,6,23,0.7)}
+
+    header{display:flex;align-items:center;gap:18px;margin-bottom:20px}
+    .logo{width:68px;height:68px;border-radius:12px;background:linear-gradient(135deg,var(--panel),#1a2436);display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.04)}
+    .logo h1{margin:0;color:var(--accent);font-size:20px;letter-spacing:2px}
+    header h2{margin:0;color:#eaf0ff;font-weight:700}
+    header p{margin:0;color:var(--muted);font-size:13px}
+
+    .main{display:grid;grid-template-columns:360px 1fr;gap:20px}
+
+    /* Left panel (machine controls) */
+    .panel{background:var(--panel);padding:18px;border-radius:12px;border:1px solid rgba(255,255,255,0.03)}
+    .section{margin-bottom:16px}
+    .section h3{margin:0 0 10px 0;color:var(--accent);font-size:13px;letter-spacing:1px}
+    .rotors{display:flex;gap:8px}
+    .rotor{flex:1;background:var(--glass);padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);text-align:center}
+    .rotor .label{font-size:11px;color:var(--muted);margin-bottom:6px}
+    .rotor .wheel{font-weight:800;color:#fff;background:linear-gradient(180deg,#2e3a52,#1b2536);padding:14px;border-radius:8px;font-size:20px;letter-spacing:2px}
+    .rotor select, .rotor input[type=number]{width:100%;margin-top:8px;padding:6px;border-radius:6px;background:transparent;border:1px solid rgba(255,255,255,0.04);color:#eaf0ff}
+
+    .plugboard{display:flex;flex-wrap:wrap;gap:6px}
+    .plug{background:linear-gradient(180deg,#111827,#0f1724);padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,0.03);color:var(--muted);font-weight:700}
+
+    /* Right area (keyboard + lamps + visual) */
+    .right{display:flex;flex-direction:column;gap:14px}
+
+    .lampboard{background:linear-gradient(180deg,#071428,#07172a);padding:14px;border-radius:12px;border:1px solid rgba(255,255,255,0.03);display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+    .lamp{width:42px;height:42px;border-radius:8px;background:linear-gradient(180deg,#0f1724,#091421);display:flex;align-items:center;justify-content:center;color:var(--muted);font-weight:800;box-shadow:inset 0 -6px 14px rgba(0,0,0,0.6)}
+    .lamp.on{background:linear-gradient(180deg,#ffd27a,#ffd36a);color:#1b1a12;box-shadow:0 6px 18px rgba(216,179,90,0.2)}
+
+    .keyboard{display:grid;grid-template-columns:repeat(10,1fr);gap:8px;padding:12px;border-radius:12px;background:linear-gradient(180deg,#091221,#071019);border:1px solid rgba(255,255,255,0.03)}
+    .key{padding:14px;border-radius:8px;background:#172033;color:#eaf0ff;font-weight:800;text-align:center;user-select:none;cursor:pointer;border:1px solid rgba(255,255,255,0.03);box-shadow:0 6px 14px rgba(3,7,18,0.6)}
+    .key:active{transform:translateY(2px)}
+
+    .machine-visual{height:160px;border-radius:10px;background:linear-gradient(90deg,#071428,#0b1730);display:flex;align-items:center;justify-content:center;color:var(--muted);border:1px solid rgba(255,255,255,0.03)}
+
+    .controls{display:flex;gap:10px;align-items:center}
+    .btn{padding:10px 14px;border-radius:10px;background:linear-gradient(180deg,#112038,#0f1730);border:1px solid rgba(255,255,255,0.04);color:#eaf0ff;font-weight:700;cursor:pointer}
+    .small{padding:8px 10px;font-size:13px}
+
+    footer{margin-top:12px;color:var(--muted);font-size:12px;text-align:right}
+
+    /* Responsive */
+    @media (max-width:900px){
+      .main{grid-template-columns:1fr;}
+      .keyboard{grid-template-columns:repeat(8,1fr)}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo"><h1>ENIGMA</h1></div>
+      <div>
+        <h2>Enigma — Visual UI Prototype</h2>
+        <p>Pure front-end demo: rotors, plugboard, lampboard and keyboard. (No encryption logic included.)</p>
+      </div>
+    </header>
+
+    <div class="main">
+      <!-- LEFT: Controls -->
+      <div class="panel">
+        <div class="section">
+          <h3>Rotors</h3>
+          <div class="rotors">
+            <div class="rotor">
+              <div class="label">Rotor I</div>
+              <div class="wheel" id="wheel1">A</div>
+              <select id="sel1">
+                <option value="I">I</option>
+                <option value="II">II</option>
+                <option value="III">III</option>
+                <option value="IV">IV</option>
+                <option value="V">V</option>
+              </select>
+              <input type="number" id="ring1" min="0" max="25" placeholder="ring" />
+            </div>
+
+            <div class="rotor">
+              <div class="label">Rotor II</div>
+              <div class="wheel" id="wheel2">A</div>
+              <select id="sel2">
+                <option value="I">I</option>
+                <option value="II">II</option>
+                <option value="III">III</option>
+                <option value="IV">IV</option>
+                <option value="V">V</option>
+              </select>
+              <input type="number" id="ring2" min="0" max="25" placeholder="ring" />
+            </div>
+
+            <div class="rotor">
+              <div class="label">Rotor III</div>
+              <div class="wheel" id="wheel3">A</div>
+              <select id="sel3">
+                <option value="I">I</option>
+                <option value="II">II</option>
+                <option value="III">III</option>
+                <option value="IV">IV</option>
+                <option value="V">V</option>
+              </select>
+              <input type="number" id="ring3" min="0" max="25" placeholder="ring" />
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>Reflector</h3>
+          <div style="display:flex;gap:8px">
+            <select id="reflector">
+              <option>UKW-A</option>
+              <option>UKW-B</option>
+              <option>UKW-C</option>
+            </select>
+            <button class="btn small" id="rand">Randomize</button>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>Plugboard</h3>
+          <div class="plugboard" id="plugboard">
+            <!-- sample plugs -->
+            <div class="plug">A↔Z</div>
+            <div class="plug">B↔Y</div>
+            <div class="plug">C↔X</div>
+            <div class="plug">D↔W</div>
+            <div class="plug">E↔V</div>
+            <div class="plug">F↔U</div>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>Misc</h3>
+          <div class="controls">
+            <button class="btn" id="reset">Reset Positions</button>
+            <button class="btn" id="clear">Clear Lamps</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Lamps, keyboard, visual -->
+      <div class="right">
+        <div class="panel">
+          <div class="section">
+            <h3>Lampboard</h3>
+            <div class="lampboard" id="lamps">
+              <!-- 26 lamps A-Z -->
+            </div>
+          </div>
+
+          <div class="section">
+            <h3>Keyboard</h3>
+            <div class="keyboard" id="keyboard">
+              <!-- keys generated by JS -->
+            </div>
+          </div>
+
+          <div class="section">
+            <h3>Machine Visual</h3>
+            <div class="machine-visual" id="visual">ROTORS RESTING • click keys to animate</div>
+          </div>
+        </div>
+
+        <footer>Prototype — no encryption or backend code included</footer>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // Build lamps A-Z and keyboard
+    const lamps = document.getElementById('lamps');
+    const keyboard = document.getElementById('keyboard');
+    const visual = document.getElementById('visual');
+    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
+    alphabet.forEach(ch=>{
+      const l = document.createElement('div');
+      l.className='lamp';
+      l.id='lamp-'+ch;
+      l.textContent=ch;
+      lamps.appendChild(l);
+
+      const k = document.createElement('div');
+      k.className='key';
+      k.id='key-'+ch;
+      k.textContent=ch;
+      k.addEventListener('click', ()=>onKeyPress(ch));
+      keyboard.appendChild(k);
+    });
+
+    // wheels
+    const wheels=[document.getElementById('wheel1'),document.getElementById('wheel2'),document.getElementById('wheel3')];
+    const sel1=document.getElementById('sel1');
+    const sel2=document.getElementById('sel2');
+    const sel3=document.getElementById('sel3');
+
+    function onKeyPress(letter){
+      // UI-only behaviour: light a lamp (next letter for demo), rotate rotor wheels visually
+      // pick a pseudo 'mapped' letter: next letter in alphabet for the demo
+      const idx = alphabet.indexOf(letter);
+      const out = alphabet[(idx+1)%26];
+
+      // toggle lamp
+      document.querySelectorAll('.lamp').forEach(x=>x.classList.remove('on'));
+      const lamp = document.getElementById('lamp-'+out);
+      lamp.classList.add('on');
+
+      // animate visual
+      visual.textContent = `${letter} → ${out}`;
+      visual.style.transform='translateY(-6px)';
+      setTimeout(()=>visual.style.transform='translateY(0)',120);
+
+      // rotate wheels (visual stepping)
+      stepWheel(0);
+    }
+
+    function stepWheel(i){
+      if(i>2) return;
+      const w=wheels[i];
+      const current = w.textContent;
+      const next = alphabet[(alphabet.indexOf(current)+1)%26];
+      w.textContent = next;
+      w.style.transition='transform 120ms';
+      w.style.transform='rotateX(20deg)';
+      setTimeout(()=>{w.style.transform='rotateX(0deg)';},120);
+      // simple cascade step
+      setTimeout(()=>stepWheel(i+1),150);
+    }
+
+    // reset and clear
+    document.getElementById('reset').addEventListener('click', ()=>{
+      wheels.forEach(w=>w.textContent='A');
+      visual.textContent='ROTORS RESTING • click keys to animate';
+    });
+    document.getElementById('clear').addEventListener('click', ()=>{
+      document.querySelectorAll('.lamp').forEach(x=>x.classList.remove('on'));
+    });
+
+    // randomize rotor selection (UI only)
+    document.getElementById('rand').addEventListener('click', ()=>{
+      const opts=['I','II','III','IV','V'];
+      sel1.value = opts[Math.floor(Math.random()*opts.length)];
+      sel2.value = opts[Math.floor(Math.random()*opts.length)];
+      sel3.value = opts[Math.floor(Math.random()*opts.length)];
+      // random wheel positions
+      wheels.forEach(w=> w.textContent = alphabet[Math.floor(Math.random()*26)]);
+    });
+
+    // allow typing from keyboard (visual only)
+    window.addEventListener('keydown', (e)=>{
+      const key = e.key.toUpperCase();
+      if(alphabet.includes(key)){
+        const el = document.getElementById('key-'+key);
+        el.classList.add('active');
+        setTimeout(()=>el.classList.remove('active'),120);
+        onKeyPress(key);
+      }
+    });
+
+    // small styling tweak for active key via CSS injection so it shows pressed state
+    const style = document.createElement('style');
+    style.innerHTML = '.key.active{transform:translateY(4px);box-shadow:0 2px 6px rgba(0,0,0,0.6)}';
+    document.head.appendChild(style);
+
+  </script>
+</body>
+</html>
