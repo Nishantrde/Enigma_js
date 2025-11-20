@@ -12,8 +12,9 @@ export class Enigma{
             this.rotors[i].rotate_to_letter(key[i])
         }
     }
-    encrypt(letter){
-
+    encrypt(message){
+        let enc_message = '';
+        for (let char of message){
         for (let i = 0; i < this.rotors.length; i++){
             for (let j = this.rotors.length - 1; j >= 0; j--){
                 if (this.rotors[j].left[0] === this.rotors[j].notch){
@@ -22,8 +23,7 @@ export class Enigma{
             }
         }
 
-        
-        let signal = this.kb.forward(letter);
+        let signal = this.kb.forward(char);
         signal = this.pb.forward(signal);
         
         for (let i = this.rotors.length - 1; i >= 0; i--){
@@ -35,8 +35,11 @@ export class Enigma{
         }
         
         signal = this.pb.backward(signal);
-        letter = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[signal];
-        return letter;
+        let letter = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[signal];
+        enc_message += letter;
+        this.rotors[this.rotors.length - 1].rotate();
     }
+return enc_message;
+}
 }
 
