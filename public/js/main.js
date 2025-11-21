@@ -19,9 +19,9 @@ export const C = new Reflector("FVPJIAOYEDRZXWGCTKUQSBNMHL")
 export const Reflectors = {"A": A, "B": B, "C": C}
 
 export const KB = new Keyboard()
-export const PB = new Plugboard(["AR", "GK", "OX"])
+// export const PB = new Plugboard(["AR", "GK", "OX"])
 
-export const ENIGMA = new Enigma(KB,PB,[I,II,III],A)
+// export const ENIGMA = new Enigma(KB,PB,[I,II,III],A)
 
 const out = document.getElementById('output');
 const state = document.getElementById('state');
@@ -32,13 +32,17 @@ function getSelectedReflectorValue() {
   let sell = document.querySelector('input[name="Reflector"]:checked');
   return sell ? sell.value : null;
 }
-const ReflectorInput = sell;
 
 // console.log(RotorsInput, ReflectorInput, PlugboardInput);
-console.log(PlugboardInput.value);
-
 document.addEventListener('keydown', (e) => {
-  console.log(PlugboardInput.value.split(","));
+  const keyboardEnabled = document.getElementById("key").checked;
+  if (!keyboardEnabled) return; 
+  const PB = new Plugboard(PlugboardInput.value.split(/[,.\-\s]+/));
+
+  const ReflectorInput = Reflectors[getSelectedReflectorValue()]
+
+  console.log(ReflectorInput);
+  const ENIGMA = new Enigma(KB,PB,[I,II,III],A)
 
   const currentReflector = getSelectedReflectorValue();
   // console.log(currentReflector);
