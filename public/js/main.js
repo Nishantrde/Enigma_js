@@ -19,53 +19,95 @@ export const C = new Reflector("FVPJIAOYEDRZXWGCTKUQSBNMHL")
 export const Reflectors = {"A": A, "B": B, "C": C}
 
 export const KB = new Keyboard()
-// export const PB = new Plugboard(["AR", "GK", "OX"])
-
-// export const ENIGMA = new Enigma(KB,PB,[I,II,III],A)
 
 const out = document.getElementById('output');
 const state = document.getElementById('state');
-const RotorsInput = [document.getElementById('I'), document.getElementById('II'), document.getElementById('III'), document.getElementById('IV'), document.getElementById('V')];
+const RotorsInput = [
+  document.getElementById('I'),
+  document.getElementById('II'),
+  document.getElementById('III'),
+  document.getElementById('IV'),
+  document.getElementById('V')
+];
 const PlugboardInput = document.getElementById('plugboard');
-let sell;
+const keyboardCheckbox = document.getElementById('key');
+
+let ENIGMA = null;
+
 function getSelectedReflectorValue() {
-  let sell = document.querySelector('input[name="Reflector"]:checked');
-  return sell ? sell.value : null;
+  const sel = document.querySelector('input[name="Reflector"]:checked');
+  return sel ? sel.value : null;
 }
 
-// console.log(RotorsInput, ReflectorInput, PlugboardInput);
+function getSelectedRotorsList() {
+  const list = [];
+  for (let rotor of RotorsInput) {
+    if (rotor && rotor.checked) list.push(Rotors[rotor.id]);
+  }
+  return list;
+}
+
+function buildPlugboard() {
+  const raw = PlugboardInput.value || "";
+  // split on comma, dot, dash, space, etc, and filter empty strings
+  const pairs = raw.split(/[,.\-\s]+/).filter(Boolean);
+  return new Plugboard(pairs);
+}
+
+// Initialize or re-initialize ENIGMA when settings change or keyboard enabled
+function initEnigmaIfNeeded() {
+  if (!keyboardCheckbox.checked) {
+    ENIGMA = null;
+    state.textContent = `Keyboard disabled`;
+    return;
+  }
+
+  const pb = buildPlugboard();
+  const reflectorKey = getSelectedReflectorValue() || "A";
+  const reflector = Reflectors[reflectorKey] || A;
+
+  let rotorsList = getSelectedRotorsList();
+  if (rotorsList.length === 0) rotorsList = [I, II, III]; // fallback
+
+  ENIGMA = new Enigma(KB, pb, rotorsList, reflector);
+  state.textContent = `Enigma initialized — Rotor positions: ${ENIGMA.rotors.map(r => r.pos).join(' ')}`;
+  console.log("ENIGMA (initialized):", ENIGMA);
+}
+
+// Re-init when user toggles keyboard checkbox or changes any setting
+keyboardCheckbox.addEventListener('change', initEnigmaIfNeeded);
+PlugboardInput.addEventListener('input', () => {
+  // keep ENIGMA updated if keyboard is enabled
+  if (keyboardCheckbox.checked) initEnigmaIfNeeded();
+});
+document.querySelectorAll('input[name="Reflector"]').forEach(r => {
+  r.addEventListener('change', () => {
+    if (keyboardCheckbox.checked) initEnigmaIfNeeded();
+  });
+});
+RotorsInput.forEach(r => {
+  if (r) r.addEventListener('change', () => {
+    if (keyboardCheckbox.checked) initEnigmaIfNeeded();
+  });
+});
+
+// Key handler — uses existing ENIGMA instance (does not recreate it)
 document.addEventListener('keydown', (e) => {
-  const keyboardEnabled = document.getElementById("key").checked;
-  if (!keyboardEnabled) return; 
-  const PB = new Plugboard(PlugboardInput.value.split(/[,.\-\s]+/));
-
-  const ReflectorInput = Reflectors[getSelectedReflectorValue()]
-
-  console.log(ReflectorInput);
-  const ENIGMA = new Enigma(KB,PB,[I,II,III],A)
-
-  const currentReflector = getSelectedReflectorValue();
-  // console.log(currentReflector);
+  if (!keyboardCheckbox.checked) return;
+  if (!ENIGMA) {
+    initEnigmaIfNeeded();
+    if (!ENIGMA) return;
+  }
 
   const key = e.key;
   const isAlphabet = /^[a-zA-Z]$/.test(key);
   const isNumber = /^[0-9]$/.test(key);
-  
-  for (let rotor of RotorsInput){
-    if (rotor.checked){
-      console.log("Selected rotor:", Rotors[rotor.id], );
-    }
-
-  }
-
   if (!isAlphabet && !isNumber) return;
 
-  // Encrypt only alphabets for now
   let encrypted = key;
   if (isAlphabet) encrypted = ENIGMA.encrypt(key.toUpperCase());
 
+  
   out.textContent = `You pressed: ${key} → Encrypted: ${encrypted}`;
-  // show rotor positions (helpful for debugging)
-  const pos = ENIGMA.rotors.map(r => r.pos).join(' ');
-  state.textContent = `Rotor positions: ${pos}`;
+  state.textContent = `Rotor positions: ${ENIGMA.rotors.map(r => r.pos).join(' ')}`;
 });
