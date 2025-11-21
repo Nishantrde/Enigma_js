@@ -30,6 +30,7 @@ const RotorsInput = [
   document.getElementById('V')
 ];
 const PlugboardInput = document.getElementById('plugboard');
+const Set_Keys = document.getElementById('Set_Key');
 const keyboardCheckbox = document.getElementById('key');
 
 let ENIGMA = null;
@@ -70,6 +71,16 @@ function initEnigmaIfNeeded() {
   if (rotorsList.length === 0) rotorsList = [I, II, III]; // fallback
 
   ENIGMA = new Enigma(KB, pb, rotorsList, reflector);
+
+  // Use the input's .value (string), sanitize, uppercase, and slice to number of rotors
+  if (Set_Keys) {
+    const raw = (Set_Keys.value || "");
+    const sanitized = raw.replace(/[^A-Za-z]/g, "").toUpperCase();
+    const desired = sanitized.slice(0, rotorsList.length); // match number of selected rotors
+    // only call set_key if there's something to set (optional)
+    if (desired.length > 0) ENIGMA.set_key(desired);
+  }
+
   state.textContent = `Enigma initialized — Rotor positions: ${ENIGMA.rotors.map(r => r.pos).join(' ')}`;
   console.log("ENIGMA (initialized):", ENIGMA);
 }
@@ -110,4 +121,5 @@ document.addEventListener('keydown', (e) => {
   
   out.textContent = `You pressed: ${key} → Encrypted: ${encrypted}`;
   state.textContent = `Rotor positions: ${ENIGMA.rotors.map(r => r.pos).join(' ')}`;
+  console.log(ENIGMA.rotors)
 });
