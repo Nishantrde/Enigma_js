@@ -7,25 +7,52 @@ import { Enigma } from "./Enigma.js";
 export const I = new Rotor("EKMFLGDQVZNTOWYHXUSPAIBRCJ", "Q")
 export const II = new Rotor("AJDKSIRUXBLHWTMCQGZNPYFVOE", "E")
 export const III = new Rotor("BDFHJLCPRTXVZNYEIWGAKMUSQO", "V")
-const IV = new Rotor("ESOVPZJAYQUIRHXLNFTGKDCMWB", "J")
-const V = new Rotor("VZBRGITYUPSDNHLXAWMJQOFECK", "Z")
+export const IV = new Rotor("ESOVPZJAYQUIRHXLNFTGKDCMWB", "J")
+export const V = new Rotor("VZBRGITYUPSDNHLXAWMJQOFECK", "Z")
+
+export const Rotors = {"I": I, "II": II, "III": III, "IV": IV, "V": V}
 
 export const A = new Reflector("EJMZALYXVBWFCRQUONTSPIKHGD")
-const B = new Reflector("YRUHQSLDPXNGOKMIEBFZCWVJAT")
-const C = new Reflector("FVPJIAOYEDRZXWGCTKUQSBNMHL")
+export const B = new Reflector("YRUHQSLDPXNGOKMIEBFZCWVJAT")
+export const C = new Reflector("FVPJIAOYEDRZXWGCTKUQSBNMHL")
+
+export const Reflectors = {"A": A, "B": B, "C": C}
 
 export const KB = new Keyboard()
 export const PB = new Plugboard(["AR", "GK", "OX"])
 
-const ENIGMA = new Enigma(KB,PB,[I,II,III],A)
+export const ENIGMA = new Enigma(KB,PB,[I,II,III],A)
 
 const out = document.getElementById('output');
 const state = document.getElementById('state');
+const RotorsInput = [document.getElementById('I'), document.getElementById('II'), document.getElementById('III'), document.getElementById('IV'), document.getElementById('V')];
+const PlugboardInput = document.getElementById('plugboard');
+let sell;
+function getSelectedReflectorValue() {
+  let sell = document.querySelector('input[name="Reflector"]:checked');
+  return sell ? sell.value : null;
+}
+const ReflectorInput = sell;
+
+// console.log(RotorsInput, ReflectorInput, PlugboardInput);
+console.log(PlugboardInput.value);
 
 document.addEventListener('keydown', (e) => {
+  console.log(PlugboardInput.value.split(","));
+
+  const currentReflector = getSelectedReflectorValue();
+  // console.log(currentReflector);
+
   const key = e.key;
   const isAlphabet = /^[a-zA-Z]$/.test(key);
   const isNumber = /^[0-9]$/.test(key);
+  
+  for (let rotor of RotorsInput){
+    if (rotor.checked){
+      console.log("Selected rotor:", Rotors[rotor.id], );
+    }
+
+  }
 
   if (!isAlphabet && !isNumber) return;
 
