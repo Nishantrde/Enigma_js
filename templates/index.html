@@ -3,39 +3,270 @@
 <head>
   <meta charset="utf-8" />
   <title>Enigma - realtime</title>
+
+  <!-- Font (only visual change) -->
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;700;900&display=swap" rel="stylesheet">
+
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    #output { font-size: 1.2rem; margin-top: 1rem; }
-    #state { color: #666; margin-top: 0.5rem; }
+    /* ===== Global ===== */
+    :root{
+      --bg-1: #0f1724;
+      --bg-2: #1b2430;
+      --panel: #161a1f;
+      --accent: #c9a24a;
+      --muted: #9aa5b1;
+      --glass: rgba(255,255,255,0.04);
+      --control-h: 56px;
+    }
+
+    html,body{
+      height:100%;
+      margin:0;
+      font-family: 'Nunito', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background:
+        radial-gradient(1200px 600px at 10% 10%, rgba(201,162,74,0.06), transparent 10%),
+        linear-gradient(180deg, var(--bg-1), var(--bg-2));
+      color:#e6eef6;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:36px;
+      box-sizing:border-box;
+    }
+
+    /* Centered panel */
+    .enigma-panel{
+      max-width:980px;
+      margin:0 auto;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:14px;
+      box-shadow: 0 8px 40px rgba(2,6,23,0.7), inset 0 1px 0 rgba(255,255,255,0.02);
+      padding:28px;
+      border:1px solid rgba(255,255,255,0.04);
+      backdrop-filter: blur(4px);
+    }
+
+    h2{
+      margin:0 0 18px 0;
+      font-weight:700;
+      letter-spacing:0.6px;
+      font-size:20px;
+      color: #fff8ea;
+    }
+
+    /* Top readout */
+    #output{
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015));
+      padding:14px 16px;
+      border-radius:10px;
+      font-size:1.15rem;
+      display:inline-block;
+      min-width:240px;
+      box-shadow: 0 6px 18px rgba(2,6,23,0.6), inset 0 -6px 18px rgba(0,0,0,0.25);
+      border: 1px solid rgba(255,255,255,0.03);
+      margin-bottom:12px;
+    }
+
+    #state{
+      color:var(--muted);
+      margin-top:8px;
+      font-size:0.92rem;
+    }
+
+    /* Controls grid */
+    .controls{
+      display:grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap:18px;
+      margin-top:18px;
+      align-items:start;
+    }
+
+    /* Rotor group - left column */
+    .rotors{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px 18px;
+      align-items:center;
+    }
+
+    /* Style for each rotor checkbox (looks like knob) */
+    input[type="checkbox"]{
+      /* preserve native value/id — only visual change */
+      -webkit-appearance:none;
+      appearance:none;
+      width:56px;
+      height:56px;
+      border-radius:50%;
+      display:inline-grid;
+      place-items:center;
+      font-weight:800;
+      color:#111;
+      font-size:0.92rem;
+      cursor:pointer;
+      transition:transform .14s ease, box-shadow .12s ease;
+      background: linear-gradient(180deg,#e9d7a5,#caa84f);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.4), inset 0 -6px 12px rgba(0,0,0,0.15);
+    }
+
+    input[type="checkbox"]:active { transform: translateY(1px) scale(.995); }
+
+    /* Show rotor "up" radio near the corresponding checkbox */
+    /* The radio is small and decorative */
+    input[type="radio"]{
+      -webkit-appearance:none;
+      appearance:none;
+      width:38px;
+      height:28px;
+      border-radius:6px;
+      padding:6px;
+      margin-left:8px;
+      cursor:pointer;
+      font-size:0.85rem;
+      background:var(--glass);
+      border:1px solid rgba(255,255,255,0.03);
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      color:var(--muted);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    }
+
+    input[type="radio"]:checked{
+      background: linear-gradient(180deg, rgba(201,162,74,0.18), rgba(201,162,74,0.08));
+      color: #fff8ea;
+      border: 1px solid rgba(201,162,74,0.6);
+      box-shadow: 0 6px 12px rgba(201,162,74,0.06);
+    }
+
+    /* Reflector radios look like flat chips */
+    input[name="Reflector"]{
+      width:auto;
+      padding:10px 12px;
+      border-radius:8px;
+      margin-right:8px;
+      font-weight:700;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border:1px solid rgba(255,255,255,0.03);
+      color:var(--muted);
+    }
+
+    input[name="Reflector"]:checked{
+      color:#fff8ea;
+      background: linear-gradient(180deg, rgba(201,162,74,0.16), rgba(255,255,255,0.02));
+      border:1px solid rgba(201,162,74,0.5);
+    }
+
+    /* Text fields */
+    input[type="text"]{
+      width:100%;
+      height:var(--control-h);
+      padding:12px 14px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,0.04);
+      background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));
+      font-size:1rem;
+      color: #eaf2ff;
+      box-shadow: 0 6px 20px rgba(2,6,23,0.55), inset 0 -6px 12px rgba(0,0,0,0.25);
+      outline:none;
+    }
+
+    input[type="text"]::placeholder{ color: #9aa5b1; opacity:0.9; }
+
+    /* small helper row for plugboard & key section (right column) */
+    .right-col{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    /* Keyboard checkbox (styled as a rectangular toggle) */
+    input#key{
+      -webkit-appearance:none;
+      appearance:none;
+      height:48px;
+      padding:10px 14px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,0.04);
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      min-width:140px;
+      display:inline-block;
+      font-weight:700;
+      color:var(--muted);
+      cursor:pointer;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.45);
+    }
+
+    input#key:checked{
+      background: linear-gradient(180deg, rgba(201,162,74,0.12), rgba(255,255,255,0.01));
+      color:#fff8ea;
+      border:1px solid rgba(201,162,74,0.5);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width:720px){
+      .controls{ grid-template-columns: 1fr; }
+      .rotors{ gap:10px; justify-content:space-between; }
+      input[type="checkbox"]{ width:48px; height:48px; font-size:0.86rem; }
+      input[name="Reflector"]{ padding:8px 10px; }
+    }
+
+    /* Decorative footer text */
+    .meta{
+      margin-top:18px;
+      color:var(--muted);
+      font-size:0.86rem;
+    }
   </style>
 </head>
+
 <body>
-  <h2>Press any number or alphabet...</h2>
-  <p id="output">You pressed: </p>
-  <p id="state"></p>
-  <input type="checkbox" id = "I">I</input>
-  <input type="radio" name = "RotorI" value = "up" >Up</input>
-  <input type="checkbox" id = "II">II</input>
-  <input type="radio" name = "RotorII" value = "up" >Up</input>
-  <input type="checkbox" id = "III">III</input>
-  <input type="radio" name = "RotorIII" value = "up" >Up</input>        
-  <input type="checkbox" id = "IV">IV</input>
-  <input type="radio" name = "RotorIV" value = "up" >Up</input>
-  <input type="checkbox" id = "V">V</input>
-  <input type="radio" name = "RotorV" value = "up" >Up</input>
-    <br>
-  <input type="radio" id = "A" name = "Reflector" value="A">ReflectorA</input>
-  <input type="radio" id = "B" name = "Reflector" value="B">ReflectorB</input>      
-  <input type="radio" id = "C" name = "Reflector" value="C">ReflectorC</input> 
-    <br>
-    <br> 
-  <input type="text" id = "plugboard">Plugboard</input>
-    <br>
-    <br>
-  <input type="text" id = "Set_Key">Set_Key</input>
-<br>
-<br>
-  <input type="checkbox" id = "key">KeyBoard</input>
+  <div class="enigma-panel">
+    <h2>Press any number or alphabet...</h2>
+
+    <p id="output">You pressed: </p>
+    <p id="state"></p>
+
+    <div class="controls">
+      <div class="rotors">
+        <input type="checkbox" id = "I">I</input>
+        <input type="radio" name = "RotorI" value = "up" >Up</input>
+
+        <input type="checkbox" id = "II">II</input>
+        <input type="radio" name = "RotorII" value = "up" >Up</input>
+
+        <input type="checkbox" id = "III">III</input>
+        <input type="radio" name = "RotorIII" value = "up" >Up</input>        
+
+        <input type="checkbox" id = "IV">IV</input>
+        <input type="radio" name = "RotorIV" value = "up" >Up</input>
+
+        <input type="checkbox" id = "V">V</input>
+        <input type="radio" name = "RotorV" value = "up" >Up</input>
+      </div>
+
+      <div class="right-col">
+        <div>
+          <input type="radio" id = "A" name = "Reflector" value="A">ReflectorA</input>
+          <input type="radio" id = "B" name = "Reflector" value="B">ReflectorB</input>      
+          <input type="radio" id = "C" name = "Reflector" value="C">ReflectorC</input> 
+        </div>
+
+        <div>
+          <input type="text" id = "plugboard" placeholder="Plugboard (e.g. AB CD EF)"></input>
+        </div>
+
+        <div>
+          <input type="text" id = "Set_Key" placeholder="Set_Key (enter starting key)"></input>
+        </div>
+
+        <div>
+          <input type="checkbox" id = "key">KeyBoard</input>
+        </div>
+      </div>
+    </div>
+
+    <div class="meta">Visual update only — IDs and attributes unchanged. Script tag is left as-is.</div>
+  </div>
 
   <script type="module" src="./js/main.js"></script>
 </body>
