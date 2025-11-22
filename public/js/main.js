@@ -1,3 +1,4 @@
+/* --- your existing imports and rotor/reflector/KB declarations stay the same --- */
 import { Keyboard } from "./Keyboard.js";
 import { Plugboard } from "./Plugboard.js";
 import { Rotor } from "./Rotor.js";
@@ -40,6 +41,12 @@ function getSelectedReflectorValue() {
   return sel ? sel.value : null;
 }
 
+function getSelectedRotorValue() {
+  const sel = document.querySelector('input[name="RotorI"]:checked');
+  return sel ? sel.value : null;
+}
+
+
 function getSelectedRotorsList() {
   const list = [];
   for (let rotor of RotorsInput) {
@@ -54,6 +61,33 @@ function buildPlugboard() {
   const pairs = raw.split(/[,.\-\s]+/).filter(Boolean);
   return new Plugboard(pairs);
 }
+
+function rotateIfSelectedUp() {
+  if (!ENIGMA) return;
+
+  const sel = document.querySelector('input[name="RotorI"]:checked');
+  if (!sel) return;
+
+  // If the selected button value is "up"
+  if (sel.value === "up") {
+    console.log(sel.value)
+    // Rotate the RIGHTMOST rotor
+    const last = ENIGMA.rotors.length - 1;
+    const rotor = ENIGMA.rotors[last];
+
+    if (rotor && typeof rotor.rotate === 'function') {
+      rotor.rotate();
+    }
+
+    // 🔥 TURN THE BUTTON OFF AFTER ROTATING
+    sel.checked = false;
+
+    // Update UI
+    state.textContent = `Rotor positions: ${ENIGMA.rotors.map(r => r.pos).join(' ')}`;
+    console.log("Rotated, turning button OFF");
+  }
+}
+
 
 // Initialize or re-initialize ENIGMA when settings change or keyboard enabled
 function initEnigmaIfNeeded() {
@@ -81,6 +115,9 @@ function initEnigmaIfNeeded() {
     if (desired.length > 0) ENIGMA.set_key(desired);
   }
 
+  // If rotor selection is "up" at initialization, rotate once.
+  rotateIfSelectedUp();
+
   state.textContent = `Enigma initialized — Rotor positions: ${ENIGMA.rotors.map(r => r.pos).join(' ')}`;
   console.log("ENIGMA (initialized):", ENIGMA);
 }
@@ -98,9 +135,14 @@ document.querySelectorAll('input[name="Reflector"]').forEach(r => {
 });
 RotorsInput.forEach(r => {
   if (r) r.addEventListener('change', () => {
-    if (keyboardCheckbox.checked) initEnigmaIfNeeded();
+    if (keyboardCheckbox.checked) {
+      initEnigmaIfNeeded();
+      // also check the "up" state right after rotor selection change
+      rotateIfSelectedUp();
+    }
   });
 });
+
 
 // Key handler — uses existing ENIGMA instance (does not recreate it)
 document.addEventListener('keydown', (e) => {
@@ -115,10 +157,12 @@ document.addEventListener('keydown', (e) => {
   const isNumber = /^[0-9]$/.test(key);
   if (!isAlphabet && !isNumber) return;
 
+  // If RotorI value is "up", rotate before encrypting this keypress
+  rotateIfSelectedUp();
+
   let encrypted = key;
   if (isAlphabet) encrypted = ENIGMA.encrypt(key.toUpperCase());
 
-  
   out.textContent = `You pressed: ${key} → Encrypted: ${encrypted}`;
   state.textContent = `Rotor positions: ${ENIGMA.rotors.map(r => r.pos).join(' ')}`;
   console.log(ENIGMA.rotors)
